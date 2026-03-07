@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>真棒！大开门</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- 顶栏：猫粮计数 -->
+  <header id="top-bar">
+    <div id="cat-food-display">
+      <span class="bowl-icon">🐱</span>
+      <span id="cat-food-count">0</span>
+      <span class="food-label">猫粮</span>
+    </div>
+  </header>
+
+  <!-- 中央游戏区 -->
+  <main id="game-area">
+    <div id="prompt-bubble" class="hidden">
+      <span id="prompt-text"></span>
+    </div>
+    <div id="floor">
+      <canvas id="room-canvas"></canvas>
+      <!-- 物品动态生成 -->
+    </div>
+  </main>
+
+  <!-- 底部猫咪 -->
+  <footer id="cat-zone">
+    <div id="cat-character">
+      <div id="cat-face">
+        <img id="cat-img" src="" alt="cat">
+      </div>
+    </div>
+    <button id="cat-switch-btn">换一换</button>
+  </footer>
+
+  <!-- 庆祝粒子容器 -->
+  <div id="particles-container"></div>
+
+  <!-- 开始遮罩 -->
+  <div id="start-overlay">
+    <div id="start-content">
+      <h1>真棒！大开门</h1>
+      <p>听语音，点击正确的物品</p>
+      <p>喂饱小猫咪吧！</p>
+      <button id="start-btn">开始游戏</button>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>
