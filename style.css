@@ -389,8 +389,8 @@ body {
 /* ===== 猫粮飞进嘴里 ===== */
 .falling-food {
   position: fixed;
-  width: 44px;
-  height: 44px;
+  width: 28px;
+  height: 28px;
   object-fit: contain;
   z-index: 20;
   pointer-events: none;
