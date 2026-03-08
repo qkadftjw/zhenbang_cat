@@ -76,6 +76,7 @@ function init() {
 
   startBtn.addEventListener('click', () => {
     startOverlay.classList.add('hidden');
+    preloadAllAudio();
     startRound();
   });
 }
@@ -194,35 +195,43 @@ function tryLoadAudio(src) {
   if (audioCache[src]) return Promise.resolve(audioCache[src]);
   return new Promise((resolve) => {
     const audio = new Audio(src);
-    audio.addEventListener('canplaythrough', () => { audioCache[src] = audio; resolve(audio); }, { once: true });
-    audio.addEventListener('error', () => resolve(null), { once: true });
+    const done = (result) => { if (result) audioCache[src] = result; resolve(result); };
+    audio.addEventListener('canplay', () => done(audio), { once: true });
+    audio.addEventListener('error', () => done(null), { once: true });
+    // iOS 上 canplay 有时不触发，3秒后兜底直接返回对象尝试播放
+    setTimeout(() => { if (!audioCache[src]) done(audio); }, 3000);
     audio.load();
   });
 }
 
+function preloadAllAudio() {
+  const allSrcs = [
+    ...ITEMS.flatMap(i => i.audios),
+    ...ZHENBANG_AUDIOS,
+    TOUWEI_AUDIO,
+  ];
+  allSrcs.forEach(src => tryLoadAudio(src));
+}
+
 async function playItemVoice(item) {
   const src = item.audios[Math.floor(Math.random() * item.audios.length)];
-  const audio = await tryLoadAudio(src);
-  if (audio) { audio.cloneNode().play().catch(() => {}); return; }
-  speakText(item.name + '！');
+  await tryLoadAudio(src);
+  const audio = new Audio(src);
+  audio.play().catch(() => speakText(item.name + '！'));
 }
 
 async function playZhenbang() {
   const src = ZHENBANG_AUDIOS[Math.floor(Math.random() * ZHENBANG_AUDIOS.length)];
-  const audio = await tryLoadAudio(src);
-  if (audio) {
-    const clone = audio.cloneNode();
-    clone.play().catch(() => {});
-    // 50% 概率在真棒结束后播投喂声
-    if (Math.random() < 0.5) {
-      clone.addEventListener('ended', async () => {
-        const touwei = await tryLoadAudio(TOUWEI_AUDIO);
-        if (touwei) touwei.cloneNode().play().catch(() => {});
-      }, { once: true });
-    }
-    return;
+  await tryLoadAudio(src);
+  const audio = new Audio(src);
+  audio.play().catch(() => speakText('真棒！！！'));
+  // 50% 概率在真棒结束后播投喂声
+  if (Math.random() < 0.5) {
+    audio.addEventListener('ended', async () => {
+      await tryLoadAudio(TOUWEI_AUDIO);
+      new Audio(TOUWEI_AUDIO).play().catch(() => {});
+    }, { once: true });
   }
-  speakText('真棒！！！');
 }
 
 function speakText(text) {
